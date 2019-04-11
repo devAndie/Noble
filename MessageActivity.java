@@ -27,7 +27,7 @@ public class MessageActivity extends AppCompatActivity {
     String sent = "SMS_SENT";
     String delivered = "SMS_DELIVERED";
     PendingIntent sentPI, deliveredPI;
-    BroadcastReceiver smsSentReciever, smsDeliveredReceiever;
+    BroadcastReceiver smsSentReciever, smsDeliveredReciever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,6 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         smsSentReciever = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -71,8 +70,7 @@ public class MessageActivity extends AppCompatActivity {
                 }
             }
         };
-
-        smsDeliveredReceiever = new BroadcastReceiver() {
+        smsDeliveredReciever = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
@@ -87,8 +85,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         };
         registerReceiver(smsSentReciever, new IntentFilter(sent));
-        registerReceiver(smsDeliveredReceiever, new IntentFilter(delivered));
-
+        registerReceiver(smsDeliveredReciever, new IntentFilter(delivered));
     }
 
     @Override
@@ -96,23 +93,27 @@ public class MessageActivity extends AppCompatActivity {
         super.onPause();
 
         unregisterReceiver(smsSentReciever);
-        unregisterReceiver(smsDeliveredReceiever);
+        unregisterReceiver(smsDeliveredReciever);
     }
+    public void btnOnClick (View v) {
 
-    public void btn_SendSMS_OnClick (View v){
+        Button button = (Button) v;
+        ((Button) v).setText("Sent");
+    }
+    public void sendSms (View v){
         String message = msg.getText().toString();
         String phoneNo = PhoneNumber.getText().toString();
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{
-                Manifest.permission.SEND_SMS
-            }, 0);
+                    ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.SEND_SMS
+                     }, 0);
         }
         else {
             SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(this.PhoneNumber.getText().toString(),
-                    null, this.msg.getText().toString(), sentPI, deliveredPI);
+            sms.sendTextMessage(phoneNo, null, this.msg.getText().toString(), sentPI, deliveredPI);
         }
     }
 }
